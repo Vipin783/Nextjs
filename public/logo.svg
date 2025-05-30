@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Camera Body -->
+  <path d="M25 15H45C46.1046 15 47 15.8954 47 17V33C47 34.1046 46.1046 35 45 35H25C23.8954 35 23 34.1046 23 33V17C23 15.8954 23.8954 15 25 15Z" fill="#FF8C00"/>
+  
+  <!-- Camera Top -->
+  <path d="M28 15V12C28 11.4477 28.4477 11 29 11H41C41.5523 11 42 11.4477 42 12V15" fill="#FF8C00"/>
+  
+  <!-- Lens -->
+  <circle cx="35" cy="25" r="7" stroke="#FF8C00" stroke-width="2"/>
+  <circle cx="35" cy="25" r="4" fill="#FF8C00"/>
+  
+  <!-- Flash -->
+  <rect x="38" y="13" width="4" height="2" fill="#FF8C00"/>
+  
+  <!-- Text -->
+  <text x="60" y="30" font-family="Arial" font-weight="bold" font-size="16" fill="#FF8C00" style="text-anchor: start;">CAPTURE STUDIO</text>
+  
+  <!-- Shutter Lines -->
+  <path d="M35 18V20" stroke="#FF8C00" stroke-width="0.5"/>
+  <path d="M35 30V32" stroke="#FF8C00" stroke-width="0.5"/>
+  <path d="M28 25H30" stroke="#FF8C00" stroke-width="0.5"/>
+  <path d="M40 25H42" stroke="#FF8C00" stroke-width="0.5"/>
+</svg> 

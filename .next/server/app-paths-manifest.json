@@ -1,0 +1,7 @@
+{
+  "/api/contact/route": "app/api/contact/route.js",
+  "/api/messages/route": "app/api/messages/route.js",
+  "/api/messages/reply/route": "app/api/messages/reply/route.js",
+  "/page": "app/page.js",
+  "/admin/messages/page": "app/admin/messages/page.js"
+}
