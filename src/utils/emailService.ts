@@ -11,7 +11,7 @@ const transporter = nodemailer.createTransport({
   secure: false, // Use TLS
   auth: {
     user: 'pvipin783@gmail.com',
-    pass: 'xfwb qwxp yvzm aqxm' // App Password generated from Google Account
+    pass: process.env.GMAIL_APP_PASSWORD // Use environment variable
   },
   tls: {
     rejectUnauthorized: false
@@ -40,12 +40,20 @@ interface EmailError {
 
 export async function sendContactNotification(data: EmailData) {
   const senderEmail = 'pvipin783@gmail.com';
+  const messageId = `<contact-${Date.now()}@${process.env.NEXT_PUBLIC_SITE_URL || 'yourwebsite.com'}>`;
   
   // Email to admin
   const adminMailOptions = {
     from: `"Contact Form" <${senderEmail}>`,
     to: senderEmail,
     subject: `New Contact Form Submission from ${data.name}`,
+    replyTo: data.email,
+    messageId: messageId,
+    headers: {
+      'X-Contact-Form': 'true',
+      'X-Contact-Name': data.name,
+      'X-Contact-Email': data.email
+    },
     html: `
       <h2>New Contact Form Submission</h2>
       <p><strong>Name:</strong> ${data.name}</p>
@@ -60,12 +68,21 @@ export async function sendContactNotification(data: EmailData) {
     from: `"Vipin" <${senderEmail}>`,
     to: data.email,
     subject: 'Thank you for contacting us',
+    references: messageId,
+    inReplyTo: messageId,
+    headers: {
+      'X-Auto-Response': 'true',
+      'X-Contact-Reference': messageId
+    },
     html: `
       <h2>Thank you for reaching out!</h2>
       <p>Dear ${data.name},</p>
       <p>We have received your message and will get back to you as soon as possible.</p>
       <p>Here's a copy of your message:</p>
-      <blockquote>${data.message}</blockquote>
+      <blockquote style="border-left: 2px solid #ccc; margin: 10px 0; padding: 10px; background-color: #f9f9f9;">
+        ${data.message.replace(/\n/g, '<br>')}
+      </blockquote>
+      <p>If you need to add any information, please reply to this email and we'll receive your update.</p>
       <p>Best regards,<br>Vipin</p>
     `
   };
@@ -79,7 +96,11 @@ export async function sendContactNotification(data: EmailData) {
     const userResult = await transporter.sendMail(userMailOptions);
     console.log('Auto-reply email sent to user:', userResult.messageId);
 
-    return true;
+    return {
+      success: true,
+      adminMessageId: adminResult.messageId,
+      userMessageId: userResult.messageId
+    };
   } catch (error) {
     const emailError = error as EmailError;
     console.error('Email sending failed:', emailError);

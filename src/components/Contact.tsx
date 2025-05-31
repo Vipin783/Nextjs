@@ -47,8 +47,8 @@ export default function Contact() {
   }
 
   return (
-    <section id="contact" className="contact">
-      <div className="section-header">
+    <section id="contact" className="contact pt-8 md:pt-12">
+      <div className="section-header mb-8">
         <h2 className="section-title">Contact Us</h2>
         <p className="section-subtitle">Get in touch for your next project</p>
       </div>

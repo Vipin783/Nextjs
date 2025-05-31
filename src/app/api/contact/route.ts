@@ -2,9 +2,9 @@ import { NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { Resend } from 'resend';
 
-const resend = new Resend('re_YcF9G28c_P6NKAkCwSNeVBATHH9y7f8X8');
-const FROM_EMAIL = 'onboarding@resend.dev';
-const ADMIN_EMAIL = 'attractivevipin@gmail.com';
+const resend = new Resend('re_NaqQmuvA_6CySGKfmwdVdv29spVFUmBg3');
+const FROM_EMAIL = 'Capture Studio <onboarding@resend.dev>';
+const ADMIN_EMAIL = ['attractivevipin@gmail.com']; // Ensure it's an array
 
 // Immediate environment variable checking
 if (!process.env.EMAIL_PASSWORD) {
@@ -41,6 +41,9 @@ export async function POST(request: Request) {
     const dbConnection = await connectToDatabase();
     db = dbConnection.db;
 
+    // Generate a unique message ID for email threading
+    const messageId = `<contact-${Date.now()}@${process.env.NEXT_PUBLIC_SITE_URL || 'yourwebsite.com'}>`;
+
     // Prepare message data
     const messageData = {
       name,
@@ -48,7 +51,9 @@ export async function POST(request: Request) {
       message,
       createdAt: new Date(),
       replied: false,
-      status: 'new'
+      status: 'new',
+      messageId: messageId,
+      emailThread: [messageId]
     };
 
     // Insert message into database
@@ -64,11 +69,25 @@ export async function POST(request: Request) {
 
     // Send emails
     try {
+      console.log('Preparing to send admin notification...');
+      console.log('Admin email configuration:', {
+        to: ADMIN_EMAIL,
+        from: FROM_EMAIL,
+        messageId: messageId
+      });
+
       // Send admin notification
-      await resend.emails.send({
+      const adminEmailResult = await resend.emails.send({
         from: FROM_EMAIL,
         to: ADMIN_EMAIL,
-        subject: 'New Contact Form Submission',
+        subject: `New Contact Form Submission from ${name}`,
+        replyTo: email,
+        headers: {
+          'Message-ID': messageId,
+          'X-Contact-Form': 'true',
+          'X-Contact-Name': name,
+          'X-Contact-Email': email
+        },
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>New Message from Website Contact Form</h2>
@@ -86,11 +105,20 @@ export async function POST(request: Request) {
         `
       });
 
+      console.log('Admin email sent successfully:', adminEmailResult);
+
       // Send auto-reply to user
-      await resend.emails.send({
+      console.log('Sending auto-reply to user:', email);
+      const userEmailResult = await resend.emails.send({
         from: FROM_EMAIL,
-        to: email,
+        to: [email],
         subject: 'Thank you for contacting us',
+        replyTo: ADMIN_EMAIL[0],
+        headers: {
+          'In-Reply-To': messageId,
+          'References': messageId,
+          'X-Auto-Response': 'true'
+        },
         html: `
           <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
             <h2>Hello ${name},</h2>
@@ -99,36 +127,58 @@ export async function POST(request: Request) {
               <p><strong>Your message:</strong></p>
               <p>${message.replace(/\n/g, '<br>')}</p>
             </div>
+            <p>If you need to add any information, please reply to this email and we'll receive your update.</p>
             <p>Best regards,<br>Capture Studio</p>
           </div>
         `
       });
 
+      console.log('User auto-reply sent successfully:', userEmailResult);
+
       // Update message status in database
       await db.collection('messages').updateOne(
         { _id: result.insertedId },
-        { $set: { emailsSent: true } }
+        { 
+          $set: { 
+            emailsSent: true,
+            adminEmailResult,
+            userEmailResult
+          }
+        }
       );
 
-    } catch (emailError: unknown) {
-      console.error('Email sending failed:', emailError);
+      return NextResponse.json({ 
+        success: true,
+        messageId: result.insertedId,
+        adminEmailSent: true,
+        userEmailSent: true
+      });
+
+    } catch (emailError: any) {
+      console.error('Email sending failed - Full error:', emailError);
+      console.error('Email error details:', {
+        message: emailError.message,
+        code: emailError.code,
+        response: emailError.response
+      });
       
       // Update message status to reflect email failure
       await db.collection('messages').updateOne(
         { _id: result.insertedId },
-        { $set: { emailError: emailError instanceof Error ? emailError.message : 'Unknown error' } }
+        { 
+          $set: { 
+            emailError: emailError.message || 'Unknown error',
+            emailErrorDetails: JSON.stringify(emailError)
+          } 
+        }
       );
 
       return NextResponse.json({
-        success: true,
-        warning: 'Message saved but email notification failed'
-      });
+        success: false,
+        error: 'Failed to send email notifications',
+        details: emailError.message || 'Unknown error'
+      }, { status: 500 });
     }
-
-    return NextResponse.json({ 
-      success: true,
-      messageId: result.insertedId
-    });
 
   } catch (error) {
     console.error('Contact form error:', error);
