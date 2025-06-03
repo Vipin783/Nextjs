@@ -8,13 +8,13 @@
   --gray-light: #f3f6f6;
   --gray-medium: #6b7280;
   --gray-dark: #374151;
-  --section-padding: 5rem;
+  --section-padding: 3rem;
   --spacing-xs: 0.25rem;
   --spacing-sm: 0.5rem;
   --spacing-md: 1rem;
-  --spacing-lg: 2rem;
-  --spacing-xl: 4rem;
-  --container-width: 1200px;
+  --spacing-lg: 1.5rem;
+  --spacing-xl: 2.5rem;
+  --container-width: 1000px;
   --container-padding: 1rem;
 }
 
@@ -351,7 +351,7 @@ section:nth-child(even) {
 
 .portfolio-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-lg);
   padding: var(--spacing-lg) 0;
 }
@@ -426,7 +426,7 @@ section:nth-child(even) {
 
 .services-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: var(--spacing-lg);
   margin-top: var(--spacing-lg);
 }
@@ -437,7 +437,7 @@ section:nth-child(even) {
   padding: 0; /* Remove padding as it will be in inner elements */
   background-color: transparent;
   border-radius: 8px;
-  height: 400px;
+  height: 350px;
   perspective: 1500px; /* Add perspective for 3D effect */
 }
 
@@ -702,6 +702,9 @@ section:nth-child(even) {
   grid-template-columns: 1fr 1fr;
   gap: var(--spacing-lg);
   margin-top: var(--spacing-lg);
+  max-width: 1200px;  /* Restored to original width */
+  margin-left: auto;
+  margin-right: auto;
 }
 
 .contact-form-wrapper {
@@ -709,6 +712,8 @@ section:nth-child(even) {
   padding: var(--spacing-lg);
   border-radius: 8px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  max-width: none;  /* Remove the max-width we added earlier */
+  margin: 0;        /* Remove the auto margin we added earlier */
 }
 
 .contact-form {
@@ -870,10 +875,13 @@ section:nth-child(even) {
 
   .contact-container {
     grid-template-columns: 1fr;
+    max-width: 600px;  /* Add max-width for mobile */
+    margin-left: auto;
+    margin-right: auto;
   }
   
   .contact-info {
-    padding: 0;
+    padding: var(--spacing-lg);
   }
 
   section {
@@ -985,7 +993,7 @@ section:nth-child(even) {
   border-radius: 8px;
   padding: var(--spacing-lg);
   width: 90%;
-  max-width: 600px;
+  max-width: 400px;
   max-height: 80vh;
   overflow-y: auto;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -1336,4 +1344,134 @@ section:nth-child(even) {
 
 .portfolio-item[style*="cursor: pointer"]:hover .portfolio-overlay {
   transform: translateY(0);
+}
+
+/* Payment Styles */
+.payment-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1200;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.payment-modal {
+  background-color: white;
+  border-radius: 8px;
+  padding: var(--spacing-lg);
+  width: 90%;
+  max-width: 400px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.payment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-lg);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--gray-light);
+}
+
+.payment-header h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-color);
+}
+
+.payment-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--gray-medium);
+  cursor: pointer;
+  padding: var(--spacing-xs);
+  transition: color 0.3s ease;
+}
+
+.payment-close:hover {
+  color: var(--text-color);
+}
+
+.payment-amount {
+  background-color: var(--gray-light);
+  padding: var(--spacing-md);
+  border-radius: 4px;
+  margin-bottom: var(--spacing-lg);
+  text-align: center;
+}
+
+.payment-amount h3 {
+  font-size: 1.1rem;
+  color: var(--text-color);
+  margin-bottom: var(--spacing-xs);
+}
+
+.payment-amount p {
+  font-size: 2rem;
+  font-weight: 600;
+  color: var(--primary-color);
+}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-md);
+}
+
+.card-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.card-icon {
+  position: absolute;
+  left: var(--spacing-md);
+  color: var(--gray-medium);
+}
+
+.card-input-wrapper input {
+  padding-left: calc(var(--spacing-md) * 2 + 20px);
+}
+
+.payment-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--spacing-md);
+}
+
+.payment-button {
+  margin-top: var(--spacing-md);
+}
+
+.payment-footer {
+  margin-top: var(--spacing-lg);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--gray-light);
+  text-align: center;
+  color: var(--gray-medium);
+  font-size: 0.9rem;
+}
+
+.payment-footer p {
+  margin-bottom: var(--spacing-xs);
+}
+
+.payment-error {
+  background-color: #fee2e2;
+  color: #991b1b;
+  padding: var(--spacing-md);
+  border-radius: 4px;
+  margin-bottom: var(--spacing-md);
+  text-align: center;
+  border: 1px solid #f87171;
 }

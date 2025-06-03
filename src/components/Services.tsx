@@ -227,6 +227,17 @@ export default function Services() {
     setCartItems(newCartItems)
   }
 
+  const clearCart = () => {
+    setCartItems([])
+    localStorage.removeItem('cartItems')
+    setIsCartOpen(false)
+  }
+
+  const handlePaymentSuccess = () => {
+    clearCart()
+    alert('Payment successful! Thank you for your purchase.')
+  }
+
   return (
     <section id="services" className="section-header">
       <h2 className="section-title">Our Services</h2>
@@ -318,6 +329,7 @@ export default function Services() {
         isOpen={isCartOpen}
         onClose={() => setIsCartOpen(false)}
         onRemoveItem={removeFromCart}
+        onPaymentSuccess={handlePaymentSuccess}
       />
     </section>
   )

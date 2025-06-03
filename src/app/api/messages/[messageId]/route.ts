@@ -1,39 +1,39 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import { ObjectId } from 'mongodb';
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { messageId: string } }
-) {
+type RouteParams = { params: { messageId: string } };
+
+export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const { messageId } = params;
-
-    if (!messageId) {
-      return NextResponse.json(
-        { error: 'Message ID is required' },
-        { status: 400 }
-      );
-    }
-
     const { db } = await connectToDatabase();
     
+    if (!db) {
+      throw new Error('Failed to connect to database');
+    }
+
     const result = await db.collection('messages').deleteOne({
-      _id: new ObjectId(messageId)
+      _id: new ObjectId(params.messageId)
     });
 
-    if (result.deletedCount === 0) {
+    if (!result.deletedCount) {
       return NextResponse.json(
-        { error: 'Message not found' },
+        { success: false, message: 'Message not found' },
         { status: 404 }
       );
     }
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({
+      success: true,
+      message: 'Message deleted successfully'
+    });
+
   } catch (error) {
-    console.error('Delete message error:', error);
     return NextResponse.json(
-      { error: 'Failed to delete message' },
+      { 
+        success: false, 
+        message: error instanceof Error ? error.message : 'Failed to delete message'
+      },
       { status: 500 }
     );
   }
